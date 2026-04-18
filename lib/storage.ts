@@ -1,58 +1,90 @@
-import { Account, GeneratedSet } from './types';
+import { Brand, GeneratedContent, FeedItem } from './types';
 
-const ACCOUNTS_KEY = 'ad_intelligence_accounts';
-const HISTORY_KEY = 'ad_intelligence_history';
+const KEYS = {
+  brands: 'ai_brands',
+  content: 'ai_content',
+  feed: 'ai_feed',
+} as const;
 
-export function getAccounts(): Account[] {
+function get<T>(key: string): T[] {
   if (typeof window === 'undefined') return [];
   try {
-    const data = localStorage.getItem(ACCOUNTS_KEY);
-    return data ? JSON.parse(data) : [];
+    return JSON.parse(localStorage.getItem(key) || '[]');
   } catch {
     return [];
   }
 }
 
-export function saveAccount(account: Account): void {
-  const accounts = getAccounts();
-  accounts.push(account);
-  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+function set<T>(key: string, data: T[]): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
-export function updateAccount(account: Account): void {
-  const accounts = getAccounts();
-  const index = accounts.findIndex((a) => a.id === account.id);
-  if (index >= 0) {
-    accounts[index] = account;
-    localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+// --- BRANDS ---
+export function getBrands(): Brand[] {
+  return get<Brand>(KEYS.brands);
+}
+
+export function saveBrand(brand: Brand): void {
+  const brands = getBrands();
+  const idx = brands.findIndex(b => b.id === brand.id);
+  if (idx >= 0) {
+    brands[idx] = brand;
+  } else {
+    brands.push(brand);
   }
+  set(KEYS.brands, brands);
 }
 
-export function deleteAccount(id: string): void {
-  const accounts = getAccounts().filter((a) => a.id !== id);
-  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
-  // also remove history for this account
-  const history = getHistory().filter((s) => s.accountId !== id);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+export function deleteBrand(id: string): void {
+  set(KEYS.brands, getBrands().filter(b => b.id !== id));
 }
 
-export function getHistory(): GeneratedSet[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const data = localStorage.getItem(HISTORY_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
+export function getBrandById(id: string): Brand | undefined {
+  return getBrands().find(b => b.id === id);
+}
+
+// --- GENERATED CONTENT ---
+export function getContent(): GeneratedContent[] {
+  return get<GeneratedContent>(KEYS.content);
+}
+
+export function saveContent(item: GeneratedContent): void {
+  const all = getContent();
+  all.unshift(item);
+  // Keep last 200 items
+  set(KEYS.content, all.slice(0, 200));
+}
+
+export function getContentByBrand(brandId: string): GeneratedContent[] {
+  return getContent().filter(c => c.brandId === brandId);
+}
+
+export function deleteContent(id: string): void {
+  set(KEYS.content, getContent().filter(c => c.id !== id));
+}
+
+// --- FEED ITEMS ---
+export function getFeedItems(brandId: string): FeedItem[] {
+  return get<FeedItem>(KEYS.feed).filter(f => f.brandId === brandId).sort((a, b) => a.order - b.order);
+}
+
+export function saveFeedItem(item: FeedItem): void {
+  const all = get<FeedItem>(KEYS.feed);
+  const idx = all.findIndex(f => f.id === item.id);
+  if (idx >= 0) {
+    all[idx] = item;
+  } else {
+    all.push(item);
   }
+  set(KEYS.feed, all);
 }
 
-export function saveGeneratedSet(set: GeneratedSet): void {
-  const history = getHistory();
-  history.unshift(set);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+export function deleteFeedItem(id: string): void {
+  set(KEYS.feed, get<FeedItem>(KEYS.feed).filter(f => f.id !== id));
 }
 
-export function deleteGeneratedSet(id: string): void {
-  const history = getHistory().filter((s) => s.id !== id);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+// --- UTILS ---
+export function generateId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }

@@ -2,57 +2,143 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    @apply bg-slate-50 text-slate-900 antialiased;
-  }
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 rounded-full;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-base: #070711;
+  --bg-surface: #0F0F1E;
+  --bg-card: #141427;
 }
 
-@layer utilities {
-  .gradient-brand {
-    background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #7c3aed 100%);
-  }
-  .gradient-card {
-    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
-  }
-  .text-gradient {
-    background: linear-gradient(135deg, #7c3aed, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .card-hover {
-    @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
-  }
-  .btn-primary {
-    @apply bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-xl px-4 py-2 transition-all duration-150 active:scale-95 shadow-sm;
-  }
-  .btn-secondary {
-    @apply bg-white hover:bg-slate-50 text-slate-700 font-medium rounded-xl px-4 py-2 transition-all duration-150 active:scale-95 border border-slate-200 shadow-sm;
-  }
-  .btn-danger {
-    @apply bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl px-4 py-2 transition-all duration-150 active:scale-95 border border-red-100;
-  }
-  .input-base {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-150;
-  }
-  .label-base {
-    @apply block text-sm font-medium text-slate-700 mb-1.5;
-  }
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #070711;
+  color: #F8F7FF;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2A2A45;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3A3A60;
+}
+
+/* Selection */
+::selection {
+  background: rgba(124, 58, 237, 0.3);
+  color: #F8F7FF;
+}
+
+/* Custom animations */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #141427 25%, #1E1E38 50%, #141427 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Violet glow effect */
+.violet-glow {
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.15), 0 0 60px rgba(124, 58, 237, 0.05);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #A78BFA 0%, #7C3AED 50%, #6D28D9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Code blocks in content */
+pre, code {
+  background: #0F0F1E;
+  border: 1px solid #1E1E38;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85em;
+}
+
+code {
+  padding: 0.1em 0.4em;
+}
+
+pre {
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+/* Focus ring global override */
+*:focus-visible {
+  outline: 2px solid rgba(124, 58, 237, 0.6);
+  outline-offset: 2px;
+}
+
+/* Prose for AI content */
+.prose-dark {
+  color: #C4C4D4;
+  line-height: 1.7;
+}
+
+.prose-dark h3 {
+  color: #F8F7FF;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-dark ul {
+  list-style: none;
+  padding: 0;
+}
+
+.prose-dark ul li {
+  padding-left: 1.25rem;
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.prose-dark ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 5px;
+  height: 5px;
+  background: #7C3AED;
+  border-radius: 50%;
+}
+
+/* Checkbox custom */
+input[type="checkbox"] {
+  accent-color: #7C3AED;
 }
