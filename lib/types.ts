@@ -23,6 +23,7 @@ export interface Brand {
   objective: Objective;
   voiceProfile: VoiceProfile;
   instagramUsername?: string;
+  storeUrl?: string;
   logoColor?: string;
   createdAt: string;
   updatedAt: string;
@@ -83,4 +84,108 @@ export interface FeedItem {
   suggestedType?: string;
   copy?: string;
   order: number;
+}
+
+// ─── ETAPA 2: NUEVOS TIPOS ───────────────────────────────────────────────────
+
+export interface StoreAnalysis {
+  id: string;
+  brandId?: string;
+  url: string;
+  platform: string;
+  overallScore: number;
+  scores: {
+    design: number;
+    navigation: number;
+    productPages: number;
+    checkout: number;
+    speed: number;
+    ctas: number;
+    funnel: number;
+  };
+  issues: string[];
+  opportunities: string[];
+  improvements: { priority: 'alta' | 'media' | 'baja'; action: string; impact: string }[];
+  designAnalysis: string;
+  navigationAnalysis: string;
+  productPageAnalysis: string;
+  checkoutAnalysis: string;
+  ctaAnalysis: string;
+  funnelAnalysis: string;
+  summary: string;
+  createdAt: string;
+}
+
+export interface FunnelStage {
+  name: string;
+  score: number;
+  status: 'bien' | 'regular' | 'mal';
+  whyFailing: string;
+  improvements: string[];
+}
+
+export interface FunnelAnalysis {
+  id: string;
+  brandId: string;
+  stages: {
+    awareness: FunnelStage;
+    consideration: FunnelStage;
+    decision: FunnelStage;
+    purchase: FunnelStage;
+    retention: FunnelStage;
+  };
+  weakestStage: string;
+  strategicPlan: string[];
+  summary: string;
+  createdAt: string;
+}
+
+export interface MonthlyReport {
+  id: string;
+  brandId: string;
+  brandName: string;
+  month: number;
+  year: number;
+  improvements: string[];
+  pending: string[];
+  estimatedMetrics: { metric: string; value: string; trend: string }[];
+  nextSteps: string[];
+  achievements: string[];
+  summary: string;
+  createdAt: string;
+}
+
+export type MemoryCategory = 'decision' | 'no_gusta' | 'preferencia' | 'acuerdo';
+
+export interface ClientMemory {
+  id: string;
+  brandId: string;
+  category: MemoryCategory;
+  content: string;
+  createdAt: string;
+}
+
+export interface CommentAnalysis {
+  id: string;
+  brandId?: string;
+  instagramUsername: string;
+  faqs: string[];
+  objections: string[];
+  positive: string[];
+  requests: string[];
+  contentIdeas: string[];
+  productImprovements: string[];
+  summary: string;
+  createdAt: string;
+}
+
+export interface MeetingBriefing {
+  id: string;
+  brandId: string;
+  currentState: string;
+  pending: string[];
+  proposals: string[];
+  questionsToAsk: string[];
+  opportunities: string[];
+  createdAt: string;
 }

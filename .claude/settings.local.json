@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f app/globals.css app/layout.tsx app/page.tsx)",
+      "Bash(rm -f components/AccountModal.tsx components/AccountsView.tsx components/GeneratorView.tsx components/HistoryView.tsx components/IdeaCard.tsx)",
+      "Bash(rm -f lib/ideaGenerator.ts lib/storage.ts lib/types.ts)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"%{http_code}\")",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(node *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/marcas)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/generator)",
+      "Bash(curl -v http://localhost:3000/marcas)",
+      "Bash(curl -sI http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(pkill -f \"next\")",
+      "Bash(cmd /c \"rmdir /s /q .next\")",
+      "Bash(tasklist /fi \"imagename eq node.exe\")",
+      "Bash(kill 1860 1815 1551)",
+      "Bash(python -m json.tool)",
+      "Bash(python3 -m json.tool)",
+      "Bash(awk '{print $1}')",
+      "Bash(xargs kill *)",
+      "Bash(cmd *)",
+      "Bash(curl -sI http://localhost:3000/marcas)",
+      "Bash(git add *)",
+      "Bash(git rm *)",
+      "Bash(git reset *)",
+      "Bash(git push *)",
+      "Bash(npx next *)"
+    ]
+  }
+}
