@@ -5,9 +5,11 @@ import {
   Store, Sparkles, BarChart2, ClipboardList, LayoutGrid,
   Users, CalendarDays, FileText, ArrowLeftRight, Zap, X, Menu,
   LayoutDashboard, ShoppingBag, TrendingUp, FileBarChart,
-  Palette, MessageSquare, Brain
+  Palette, MessageSquare, Brain, Settings, Sun, Moon,
+  Package, Building2, Star
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTheme } from '@/lib/theme-context';
 
 const NAV_GROUPS = [
   {
@@ -23,6 +25,7 @@ const NAV_GROUPS = [
     label: 'Contenido',
     items: [
       { href: '/generator', icon: Sparkles, label: 'Generador' },
+      { href: '/nombres', icon: Package, label: 'Nombres y Copys' },
       { href: '/instagram', icon: BarChart2, label: 'Instagram' },
       { href: '/comentarios', icon: MessageSquare, label: 'Comentarios' },
       { href: '/feed', icon: LayoutGrid, label: 'Armado de Feed' },
@@ -36,6 +39,7 @@ const NAV_GROUPS = [
       { href: '/auditoria', icon: ClipboardList, label: 'Auditoría' },
       { href: '/tienda', icon: ShoppingBag, label: 'Análisis de Tienda' },
       { href: '/embudo', icon: TrendingUp, label: 'Embudo de Marca' },
+      { href: '/resenas', icon: Star, label: 'Análisis de Reseñas' },
       { href: '/competencia', icon: Users, label: 'Competencia' },
       { href: '/comparador', icon: ArrowLeftRight, label: 'Comparador' },
     ],
@@ -44,6 +48,7 @@ const NAV_GROUPS = [
     label: 'Reportes',
     items: [
       { href: '/reportes', icon: FileBarChart, label: 'Reportes Mensuales' },
+      { href: '/propuestas', icon: Building2, label: 'Propuestas Comerciales' },
       { href: '/canva', icon: Palette, label: 'Export a Canva' },
     ],
   },
@@ -72,6 +77,20 @@ function NavItem({ href, icon: Icon, label, active, onClick }: {
       <span className="truncate">{label}</span>
       {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0" />}
     </Link>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button
+      onClick={toggle}
+      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-ink-dim hover:text-ink hover:bg-card transition-all w-full"
+      title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+    >
+      {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+      <span>{theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}</span>
+    </button>
   );
 }
 
@@ -114,8 +133,16 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-border flex-shrink-0">
-        <p className="text-[10px] text-ink-dim text-center">Ad Intelligence v2.0 · Etapa 2</p>
+      <div className="px-3 py-3 border-t border-border flex-shrink-0 space-y-0.5">
+        <ThemeToggle />
+        <NavItem
+          href="/settings"
+          icon={Settings}
+          label="Configuración"
+          active={pathname === '/settings'}
+          onClick={() => setMobileOpen(false)}
+        />
+        <p className="text-[10px] text-ink-dim text-center pt-1">Ad Intelligence v3.0</p>
       </div>
     </>
   );

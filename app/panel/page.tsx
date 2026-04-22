@@ -4,12 +4,12 @@ import { useRouter } from 'next/navigation';
 import {
   AlertTriangle, CheckCircle, Clock, Sparkles, BarChart2,
   Store, ShoppingBag, TrendingUp, ChevronRight, RefreshCw,
-  Bell, Zap, LayoutGrid
+  Bell, Zap, LayoutGrid, MessageCircle, Check
 } from 'lucide-react';
 import { Brand } from '@/lib/types';
 import {
   getBrands, getContent, getStoreAnalyses,
-  getFunnelAnalyses, getClientMemories
+  getFunnelAnalyses, getClientMemories, getSettings
 } from '@/lib/storage';
 import { formatRelative } from '@/lib/utils';
 
@@ -95,6 +95,57 @@ function AlertBadge({ count }: { count: number }) {
     <span className="text-xs text-amber-400 flex items-center gap-1">
       <AlertTriangle size={12} />{count} alerta{count > 1 ? 's' : ''}
     </span>
+  );
+}
+
+function WhatsAppAlertButton({ urgent }: { urgent: BrandHealth[] }) {
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const send = async () => {
+    const settings = getSettings();
+    if (!settings.whatsappNumber || !settings.apiKeys.twilioSid) {
+      alert('Configurá tu número de WhatsApp y las credenciales de Twilio en Configuración');
+      return;
+    }
+    setSending(true);
+    try {
+      const names = urgent.map(h => `• ${h.brand.name} (score: ${h.score})`).join('\n');
+      const msg = `🚨 *Ad Intelligence — Alerta urgente*\n\n${urgent.length} marca${urgent.length > 1 ? 's necesitan' : ' necesita'} atención:\n\n${names}\n\nRevisá el panel para ver los detalles.`;
+      const res = await fetch('/api/whatsapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: settings.whatsappNumber,
+          message: msg,
+          twilioSid: settings.apiKeys.twilioSid,
+          twilioToken: settings.apiKeys.twilioToken,
+          twilioWhatsapp: settings.apiKeys.twilioWhatsapp,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSent(true);
+        setTimeout(() => setSent(false), 4000);
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch {
+      alert('Error al enviar');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={send}
+      disabled={sending}
+      className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-green-900/30 border border-green-700/40 rounded-lg text-green-400 hover:bg-green-900/50 transition-colors disabled:opacity-50"
+    >
+      {sent ? <Check size={11} /> : <MessageCircle size={11} />}
+      {sending ? 'Enviando...' : sent ? 'Enviado' : 'Alertar por WhatsApp'}
+    </button>
   );
 }
 
@@ -195,9 +246,12 @@ export default function PanelPage() {
       {/* Alertas urgentes */}
       {urgent.length > 0 && (
         <div className="bg-red-950/30 border border-red-800/40 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Bell size={16} className="text-red-400" />
-            <p className="text-sm font-semibold text-red-300">Necesitan atención urgente</p>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Bell size={16} className="text-red-400" />
+              <p className="text-sm font-semibold text-red-300">Necesitan atención urgente</p>
+            </div>
+            <WhatsAppAlertButton urgent={urgent} />
           </div>
           <div className="space-y-2">
             {urgent.map(h => (

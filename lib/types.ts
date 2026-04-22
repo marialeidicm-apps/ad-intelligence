@@ -189,3 +189,107 @@ export interface MeetingBriefing {
   opportunities: string[];
   createdAt: string;
 }
+
+// ─── ETAPA 3: NUEVOS TIPOS ───────────────────────────────────────────────────
+
+export interface AppSettings {
+  agencyName: string;
+  agencyLogo: string | null;
+  whatsappNumber: string;
+  whatsappNotifications: {
+    urgentBrands: boolean;
+    upcomingDates: boolean;
+    criticalAnalysis: boolean;
+  };
+  apiKeys: {
+    anthropic: string;
+    apify: string;
+    twilioSid: string;
+    twilioToken: string;
+    twilioWhatsapp: string;
+  };
+  theme: 'dark' | 'light';
+  accentColor: string;
+}
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  agencyName: 'Ad Intelligence',
+  agencyLogo: null,
+  whatsappNumber: '',
+  whatsappNotifications: {
+    urgentBrands: true,
+    upcomingDates: true,
+    criticalAnalysis: true,
+  },
+  apiKeys: {
+    anthropic: '',
+    apify: '',
+    twilioSid: '',
+    twilioToken: '',
+    twilioWhatsapp: '',
+  },
+  theme: 'dark',
+  accentColor: '#7C3AED',
+};
+
+export interface ProductCopyResult {
+  id: string;
+  productDescription: string;
+  brandId?: string;
+  brandName?: string;
+  names: string[];
+  productDescriptions: string[];
+  instagramCopys: string[];
+  videoHooks: string[];
+  createdAt: string;
+}
+
+export type ProposalService = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  included: boolean;
+};
+
+export interface CommercialProposal {
+  id: string;
+  brandId: string;
+  brandName: string;
+  services: ProposalService[];
+  objectives: string[];
+  workPlan: { week: string; tasks: string[] }[];
+  brandAnalysis: string;
+  proposalText: string;
+  totalPrice: number;
+  createdAt: string;
+}
+
+export type ReviewPlatform = 'google_maps' | 'mercadolibre' | 'amazon' | 'otro';
+
+export interface ReviewAnalysis {
+  id: string;
+  brandId?: string;
+  sourceUrl: string;
+  platform: ReviewPlatform;
+  reviewsAnalyzed: number;
+  loved: string[];
+  hated: string[];
+  opportunities: string[];
+  actions: string[];
+  sentiment: 'muy_positivo' | 'positivo' | 'neutro' | 'negativo' | 'muy_negativo';
+  averageRating?: number;
+  summary: string;
+  createdAt: string;
+}
+
+export interface VoiceAutoAnalysis {
+  tone: string;
+  formality: 'muy_formal' | 'formal' | 'neutro' | 'informal' | 'muy_informal';
+  characteristicPhrases: string[];
+  bannedWords: string[];
+  emojis: string[];
+  idealCustomer: string;
+  brandPersonality: string;
+  communicationStyle: string;
+}

@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Brand } from '@/lib/types';
-import { getBrands, saveContent, generateId } from '@/lib/storage';
+import { Brand, VoiceAutoAnalysis } from '@/lib/types';
+import { getBrands, saveBrand, saveContent, generateId } from '@/lib/storage';
 import { buildBrandContext } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -12,7 +12,7 @@ import { Spinner, EmptyState } from '@/components/ui/Spinner';
 import {
   BarChart2, Instagram, TrendingUp, AlertTriangle, Lightbulb,
   Target, Users, Sparkles, CheckCircle2, AlertCircle, Info,
-  ChevronRight, ArrowUp
+  ChevronRight, ArrowUp, Mic2, Save, CheckCheck
 } from 'lucide-react';
 
 interface AnalysisData {
@@ -91,6 +91,8 @@ function InstagramContent() {
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
   const [hasRealData, setHasRealData] = useState(false);
   const [error, setError] = useState('');
+  const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAutoAnalysis | null>(null);
+  const [voiceSaved, setVoiceSaved] = useState(false);
 
   useEffect(() => {
     const list = getBrands();
@@ -115,6 +117,8 @@ function InstagramContent() {
     const brand = brands.find(b => b.id === id);
     if (brand?.instagramUsername) setUsername(brand.instagramUsername);
     setAnalysis(null);
+    setVoiceAnalysis(null);
+    setVoiceSaved(false);
   };
 
   const analyze = async () => {
@@ -122,6 +126,8 @@ function InstagramContent() {
     setLoading(true);
     setError('');
     setAnalysis(null);
+    setVoiceAnalysis(null);
+    setVoiceSaved(false);
 
     try {
       const res = await fetch('/api/instagram', {
@@ -151,11 +157,51 @@ function InstagramContent() {
           createdAt: new Date().toISOString(),
         });
       }
+
+      // Auto voice analysis
+      try {
+        const voiceRes = await fetch('/api/voz-marca', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            instagramData: data.result,
+            brandName: selectedBrand?.name || username,
+            industry: selectedBrand?.industry || '',
+          }),
+        });
+        if (voiceRes.ok) {
+          const voiceData = await voiceRes.json();
+          if (voiceData.result) setVoiceAnalysis(voiceData.result);
+        }
+      } catch {
+        // Voice analysis is optional, don't fail
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al analizar');
     } finally {
       setLoading(false);
     }
+  };
+
+  const saveVoiceToProfile = () => {
+    if (!voiceAnalysis || !selectedBrandId) return;
+    const brand = brands.find(b => b.id === selectedBrandId);
+    if (!brand) return;
+    const updated: Brand = {
+      ...brand,
+      voiceProfile: {
+        tone: voiceAnalysis.tone,
+        characteristicPhrases: voiceAnalysis.characteristicPhrases.join(', '),
+        bannedWords: voiceAnalysis.bannedWords.join(', '),
+        emojis: voiceAnalysis.emojis.join(' '),
+        idealCustomer: voiceAnalysis.idealCustomer,
+      },
+      updatedAt: new Date().toISOString(),
+    };
+    saveBrand(updated);
+    setBrands(getBrands());
+    setVoiceSaved(true);
+    setTimeout(() => setVoiceSaved(false), 3000);
   };
 
   return (
@@ -336,6 +382,66 @@ function InstagramContent() {
               ))}
             </div>
           </div>
+
+          {/* Voz de marca automática */}
+          {voiceAnalysis && (
+            <div className="bg-surface border border-violet-600/30 rounded-xl p-5 animate-slide-up">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-violet-dim flex items-center justify-center">
+                    <Mic2 size={14} className="text-violet-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-ink">Voz de marca detectada automáticamente</h3>
+                    <p className="text-xs text-ink-dim">Basado en el análisis de Instagram</p>
+                  </div>
+                </div>
+                {selectedBrandId && (
+                  <Button
+                    onClick={saveVoiceToProfile}
+                    variant={voiceSaved ? 'secondary' : 'outline'}
+                    icon={voiceSaved ? <CheckCheck size={13} /> : <Save size={13} />}
+                  >
+                    {voiceSaved ? 'Guardado en perfil' : 'Guardar en perfil'}
+                  </Button>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2">Tono</p>
+                  <p className="text-sm text-ink-muted bg-card rounded-lg p-3">{voiceAnalysis.tone}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2">Cliente ideal</p>
+                  <p className="text-sm text-ink-muted bg-card rounded-lg p-3">{voiceAnalysis.idealCustomer}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2">Frases características</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {voiceAnalysis.characteristicPhrases.map((p, i) => (
+                      <span key={i} className="text-xs bg-card border border-border rounded-full px-2.5 py-1 text-ink-muted">{p}</span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2">Emojis típicos</p>
+                  <p className="text-2xl tracking-widest">{voiceAnalysis.emojis.join(' ')}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2">Palabras a evitar</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {voiceAnalysis.bannedWords.map((w, i) => (
+                      <span key={i} className="text-xs bg-danger/10 border border-danger/30 rounded-full px-2.5 py-1 text-danger">{w}</span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2">Personalidad</p>
+                  <p className="text-sm text-ink-muted bg-card rounded-lg p-3">{voiceAnalysis.brandPersonality}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Crecimiento + Explorar */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -4,10 +4,59 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* ─── DARK MODE (default) ─────────────────────────────────────── */
 :root {
+  --color-base: #070711;
+  --color-surface: #0F0F1E;
+  --color-card: #141427;
+  --color-card-hover: #1A1A33;
+  --color-border: #1E1E38;
+  --color-border-subtle: #161630;
+  --color-ink: #F8F7FF;
+  --color-ink-muted: #8B8BAA;
+  --color-ink-dim: #5C5C7A;
+
   --bg-base: #070711;
   --bg-surface: #0F0F1E;
   --bg-card: #141427;
+}
+
+/* ─── LIGHT MODE ──────────────────────────────────────────────── */
+.light {
+  --color-base: #F5F5FF;
+  --color-surface: #FFFFFF;
+  --color-card: #F0EFFE;
+  --color-card-hover: #E8E6FD;
+  --color-border: #DDD8FA;
+  --color-border-subtle: #E8E5FE;
+  --color-ink: #1A1033;
+  --color-ink-muted: #5A527A;
+  --color-ink-dim: #8880A5;
+
+  --bg-base: #F5F5FF;
+  --bg-surface: #FFFFFF;
+  --bg-card: #F0EFFE;
+}
+
+.light body {
+  background-color: #F5F5FF;
+  color: #1A1033;
+}
+
+.light .shimmer {
+  background: linear-gradient(90deg, #F0EFFE 25%, #E8E6FD 50%, #F0EFFE 75%);
+}
+
+.light .violet-glow {
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.12), 0 0 60px rgba(124, 58, 237, 0.04);
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #C4B8F5;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #A78BFA;
 }
 
 * {
@@ -22,8 +71,8 @@ body {
 }
 
 body {
-  background-color: #070711;
-  color: #F8F7FF;
+  background-color: var(--color-base);
+  color: var(--color-ink);
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -81,8 +130,8 @@ body {
 
 /* Code blocks in content */
 pre, code {
-  background: #0F0F1E;
-  border: 1px solid #1E1E38;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.85em;
@@ -105,12 +154,12 @@ pre {
 
 /* Prose for AI content */
 .prose-dark {
-  color: #C4C4D4;
+  color: var(--color-ink-muted);
   line-height: 1.7;
 }
 
 .prose-dark h3 {
-  color: #F8F7FF;
+  color: var(--color-ink);
   font-weight: 600;
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;

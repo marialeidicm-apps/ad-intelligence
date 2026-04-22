@@ -5,15 +5,16 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        base: '#070711',
-        surface: '#0F0F1E',
-        card: '#141427',
-        'card-hover': '#1A1A33',
-        border: '#1E1E38',
-        'border-subtle': '#161630',
+        base: 'var(--color-base)',
+        surface: 'var(--color-surface)',
+        card: 'var(--color-card)',
+        'card-hover': 'var(--color-card-hover)',
+        border: 'var(--color-border)',
+        'border-subtle': 'var(--color-border-subtle)',
         violet: {
           DEFAULT: '#7C3AED',
           light: '#A78BFA',
@@ -31,9 +32,9 @@ const config: Config = {
           900: '#4c1d95',
         },
         ink: {
-          DEFAULT: '#F8F7FF',
-          muted: '#8B8BAA',
-          dim: '#5C5C7A',
+          DEFAULT: 'var(--color-ink)',
+          muted: 'var(--color-ink-muted)',
+          dim: 'var(--color-ink-dim)',
         },
         success: '#10B981',
         warning: '#F59E0B',

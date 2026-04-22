@@ -2,6 +2,8 @@ import {
   Brand, GeneratedContent, FeedItem,
   StoreAnalysis, FunnelAnalysis, MonthlyReport,
   ClientMemory, CommentAnalysis, MeetingBriefing,
+  AppSettings, DEFAULT_SETTINGS, ProductCopyResult,
+  CommercialProposal, ReviewAnalysis,
 } from './types';
 import { supabase } from './supabase';
 
@@ -15,6 +17,10 @@ const KEYS = {
   clientMemories: 'ai_client_memories',
   commentAnalyses: 'ai_comment_analyses',
   meetingBriefings: 'ai_meeting_briefings',
+  settings: 'ai_settings',
+  productCopys: 'ai_product_copys',
+  proposals: 'ai_proposals',
+  reviewAnalyses: 'ai_review_analyses',
 } as const;
 
 function get<T>(key: string): T[] {
@@ -226,6 +232,75 @@ export async function saveMeetingBriefing(item: MeetingBriefing): Promise<void> 
       created_at: item.createdAt,
     });
   }
+}
+
+// --- SETTINGS ---
+export function getSettings(): AppSettings {
+  if (typeof window === 'undefined') return DEFAULT_SETTINGS;
+  try {
+    const raw = localStorage.getItem(KEYS.settings);
+    if (!raw) return DEFAULT_SETTINGS;
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+}
+
+export function saveSettings(settings: AppSettings): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(KEYS.settings, JSON.stringify(settings));
+}
+
+// --- PRODUCT COPYS ---
+export function getProductCopys(): ProductCopyResult[] {
+  return get<ProductCopyResult>(KEYS.productCopys);
+}
+
+export function saveProductCopy(item: ProductCopyResult): void {
+  const all = getProductCopys();
+  all.unshift(item);
+  set(KEYS.productCopys, all.slice(0, 100));
+}
+
+export function deleteProductCopy(id: string): void {
+  set(KEYS.productCopys, getProductCopys().filter(c => c.id !== id));
+}
+
+// --- COMMERCIAL PROPOSALS ---
+export function getProposals(brandId?: string): CommercialProposal[] {
+  const all = get<CommercialProposal>(KEYS.proposals);
+  return brandId ? all.filter(p => p.brandId === brandId) : all;
+}
+
+export function saveProposal(item: CommercialProposal): void {
+  const all = get<CommercialProposal>(KEYS.proposals);
+  const idx = all.findIndex(p => p.id === item.id);
+  if (idx >= 0) {
+    all[idx] = item;
+  } else {
+    all.unshift(item);
+  }
+  set(KEYS.proposals, all.slice(0, 50));
+}
+
+export function deleteProposal(id: string): void {
+  set(KEYS.proposals, getProposals().filter(p => p.id !== id));
+}
+
+// --- REVIEW ANALYSES ---
+export function getReviewAnalyses(brandId?: string): ReviewAnalysis[] {
+  const all = get<ReviewAnalysis>(KEYS.reviewAnalyses);
+  return brandId ? all.filter(r => r.brandId === brandId) : all;
+}
+
+export function saveReviewAnalysis(item: ReviewAnalysis): void {
+  const all = get<ReviewAnalysis>(KEYS.reviewAnalyses);
+  all.unshift(item);
+  set(KEYS.reviewAnalyses, all.slice(0, 50));
+}
+
+export function deleteReviewAnalysis(id: string): void {
+  set(KEYS.reviewAnalyses, getReviewAnalyses().filter(r => r.id !== id));
 }
 
 // --- UTILS ---
