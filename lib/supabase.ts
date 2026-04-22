@@ -40,6 +40,35 @@
     pending text[], proposals text[], questions_to_ask text[],
     opportunities text[], created_at timestamptz default now()
   );
+
+  -- Módulo Referentes (Etapa 3)
+  create table if not exists referentes (
+    id text primary key, username text not null, display_name text,
+    category text, notes text, follower_count text,
+    last_scraped timestamptz, is_active boolean default true,
+    created_at timestamptz default now()
+  );
+  create table if not exists referente_posts (
+    id text primary key, referente_id text references referentes(id),
+    username text, post_url text, type text, caption text,
+    likes_count int default 0, comments_count int default 0,
+    views_count int, published_at timestamptz, scraped_at timestamptz,
+    is_viral boolean default false, viral_score int default 0
+  );
+  create index if not exists referente_posts_referente_id on referente_posts(referente_id);
+  create index if not exists referente_posts_scraped_at on referente_posts(scraped_at desc);
+  create table if not exists informes_diarios (
+    id text primary key, date text, posts_analyzed int,
+    referentes_analyzed int, highlights text[], strategies text[],
+    trends text[], viral_content text[], full_report text,
+    created_at timestamptz default now()
+  );
+  create table if not exists informes_semanales (
+    id text primary key, week_start text, week_end text,
+    top_trends text[], repeated_strategies text[], top_actions text[],
+    market_insights text[], full_report text,
+    created_at timestamptz default now()
+  );
 */
 
 import { createClient } from '@supabase/supabase-js';

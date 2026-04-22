@@ -283,6 +283,89 @@ export interface ReviewAnalysis {
   createdAt: string;
 }
 
+// ─── MÓDULO REFERENTES ──────────────────────────────────────────────────────
+
+export type ReferenteCategory = 'estrategia' | 'contenido' | 'tendencias' | 'industria' | 'marketing' | 'comunidad' | 'otro';
+
+export interface Referente {
+  id: string;
+  username: string;
+  displayName?: string;
+  category: ReferenteCategory;
+  notes?: string;
+  followerCount?: string;
+  lastScraped?: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ReferentePost {
+  id: string;
+  referenteId: string;
+  username: string;
+  postUrl?: string;
+  type: 'post' | 'reel' | 'carrusel';
+  caption: string;
+  likesCount: number;
+  commentsCount: number;
+  viewsCount?: number;
+  publishedAt: string;
+  scrapedAt: string;
+  isViral: boolean;
+  viralScore: number;
+}
+
+export interface InformeDiario {
+  id: string;
+  date: string;
+  postsAnalyzed: number;
+  referentesAnalyzed: number;
+  highlights: string[];
+  strategies: string[];
+  trends: string[];
+  viralContent: string[];
+  fullReport: string;
+  createdAt: string;
+}
+
+export interface InformeSemanal {
+  id: string;
+  weekStart: string;
+  weekEnd: string;
+  topTrends: string[];
+  repeatedStrategies: string[];
+  topActions: string[];
+  marketInsights: string[];
+  fullReport: string;
+  createdAt: string;
+}
+
+export interface TendenciaAplicada {
+  id: string;
+  informeId: string;
+  brandId: string;
+  brandName: string;
+  referenteUsername: string;
+  strategy: string;
+  howToApply: string;
+  suggestedFormat: string;
+  priority: 'alta' | 'media' | 'baja';
+  createdAt: string;
+}
+
+export interface ContenidoMaria {
+  id: string;
+  date: string;
+  inspiradoEn: string;
+  formato: 'historia' | 'post' | 'reel' | 'tiktok' | 'carrusel';
+  titulo: string;
+  hook: string;
+  guion: string;
+  copy: string;
+  hashtags: string[];
+  createdAt: string;
+}
+
 export interface VoiceAutoAnalysis {
   tone: string;
   formality: 'muy_formal' | 'formal' | 'neutro' | 'informal' | 'muy_informal';

@@ -6,7 +6,7 @@ import {
   Users, CalendarDays, FileText, ArrowLeftRight, Zap, X, Menu,
   LayoutDashboard, ShoppingBag, TrendingUp, FileBarChart,
   Palette, MessageSquare, Brain, Settings, Sun, Moon,
-  Package, Building2, Star
+  Package, Building2, Star, Telescope
 } from 'lucide-react';
 import { useState } from 'react';
 import { useTheme } from '@/lib/theme-context';
@@ -42,6 +42,12 @@ const NAV_GROUPS = [
       { href: '/resenas', icon: Star, label: 'Análisis de Reseñas' },
       { href: '/competencia', icon: Users, label: 'Competencia' },
       { href: '/comparador', icon: ArrowLeftRight, label: 'Comparador' },
+    ],
+  },
+  {
+    label: 'Referentes',
+    items: [
+      { href: '/referentes', icon: Telescope, label: 'Referentes' },
     ],
   },
   {

@@ -4,6 +4,8 @@ import {
   ClientMemory, CommentAnalysis, MeetingBriefing,
   AppSettings, DEFAULT_SETTINGS, ProductCopyResult,
   CommercialProposal, ReviewAnalysis,
+  Referente, ReferentePost, InformeDiario, InformeSemanal,
+  TendenciaAplicada, ContenidoMaria,
 } from './types';
 import { supabase } from './supabase';
 
@@ -21,6 +23,12 @@ const KEYS = {
   productCopys: 'ai_product_copys',
   proposals: 'ai_proposals',
   reviewAnalyses: 'ai_review_analyses',
+  referentes: 'ai_referentes',
+  referentePosts: 'ai_referente_posts',
+  informesDiarios: 'ai_informes_diarios',
+  informesSemanales: 'ai_informes_semanales',
+  tendenciasAplicadas: 'ai_tendencias_aplicadas',
+  contenidoMaria: 'ai_contenido_maria',
 } as const;
 
 function get<T>(key: string): T[] {
@@ -301,6 +309,124 @@ export function saveReviewAnalysis(item: ReviewAnalysis): void {
 
 export function deleteReviewAnalysis(id: string): void {
   set(KEYS.reviewAnalyses, getReviewAnalyses().filter(r => r.id !== id));
+}
+
+// --- REFERENTES ---
+export function getReferentes(): Referente[] {
+  return get<Referente>(KEYS.referentes).sort((a, b) => a.username.localeCompare(b.username));
+}
+
+export function saveReferente(item: Referente): void {
+  const all = get<Referente>(KEYS.referentes);
+  const idx = all.findIndex(r => r.id === item.id);
+  if (idx >= 0) { all[idx] = item; } else { all.push(item); }
+  set(KEYS.referentes, all);
+  if (supabase) {
+    supabase.from('referentes').upsert({
+      id: item.id, username: item.username, display_name: item.displayName,
+      category: item.category, notes: item.notes, follower_count: item.followerCount,
+      last_scraped: item.lastScraped, is_active: item.isActive, created_at: item.createdAt,
+    });
+  }
+}
+
+export function deleteReferente(id: string): void {
+  set(KEYS.referentes, get<Referente>(KEYS.referentes).filter(r => r.id !== id));
+  if (supabase) supabase.from('referentes').delete().eq('id', id);
+}
+
+// --- REFERENTE POSTS ---
+export function getReferentePosts(referenteId?: string): ReferentePost[] {
+  const all = get<ReferentePost>(KEYS.referentePosts);
+  return referenteId ? all.filter(p => p.referenteId === referenteId) : all;
+}
+
+export function saveReferentePosts(posts: ReferentePost[]): void {
+  const existing = get<ReferentePost>(KEYS.referentePosts);
+  const existingIds = new Set(existing.map(p => p.id));
+  const newPosts = posts.filter(p => !existingIds.has(p.id));
+  const merged = [...newPosts, ...existing].slice(0, 500);
+  set(KEYS.referentePosts, merged);
+  if (supabase && newPosts.length > 0) {
+    supabase.from('referente_posts').upsert(newPosts.map(p => ({
+      id: p.id, referente_id: p.referenteId, username: p.username,
+      post_url: p.postUrl, type: p.type, caption: p.caption,
+      likes_count: p.likesCount, comments_count: p.commentsCount,
+      views_count: p.viewsCount, published_at: p.publishedAt,
+      scraped_at: p.scrapedAt, is_viral: p.isViral, viral_score: p.viralScore,
+    })));
+  }
+}
+
+export function updateReferenteLastScraped(id: string, date: string): void {
+  const all = get<Referente>(KEYS.referentes);
+  const idx = all.findIndex(r => r.id === id);
+  if (idx >= 0) { all[idx].lastScraped = date; set(KEYS.referentes, all); }
+}
+
+// --- INFORMES DIARIOS ---
+export function getInformesDiarios(): InformeDiario[] {
+  return get<InformeDiario>(KEYS.informesDiarios);
+}
+
+export function saveInformeDiario(item: InformeDiario): void {
+  const all = get<InformeDiario>(KEYS.informesDiarios);
+  all.unshift(item);
+  set(KEYS.informesDiarios, all.slice(0, 60));
+  if (supabase) {
+    supabase.from('informes_diarios').upsert({
+      id: item.id, date: item.date, posts_analyzed: item.postsAnalyzed,
+      referentes_analyzed: item.referentesAnalyzed, highlights: item.highlights,
+      strategies: item.strategies, trends: item.trends, viral_content: item.viralContent,
+      full_report: item.fullReport, created_at: item.createdAt,
+    });
+  }
+}
+
+// --- INFORMES SEMANALES ---
+export function getInformesSemanales(): InformeSemanal[] {
+  return get<InformeSemanal>(KEYS.informesSemanales);
+}
+
+export function saveInformeSemanal(item: InformeSemanal): void {
+  const all = get<InformeSemanal>(KEYS.informesSemanales);
+  all.unshift(item);
+  set(KEYS.informesSemanales, all.slice(0, 20));
+  if (supabase) {
+    supabase.from('informes_semanales').upsert({
+      id: item.id, week_start: item.weekStart, week_end: item.weekEnd,
+      top_trends: item.topTrends, repeated_strategies: item.repeatedStrategies,
+      top_actions: item.topActions, market_insights: item.marketInsights,
+      full_report: item.fullReport, created_at: item.createdAt,
+    });
+  }
+}
+
+// --- TENDENCIAS APLICADAS ---
+export function getTendenciasAplicadas(brandId?: string): TendenciaAplicada[] {
+  const all = get<TendenciaAplicada>(KEYS.tendenciasAplicadas);
+  return brandId ? all.filter(t => t.brandId === brandId) : all;
+}
+
+export function saveTendenciaAplicada(item: TendenciaAplicada): void {
+  const all = get<TendenciaAplicada>(KEYS.tendenciasAplicadas);
+  all.unshift(item);
+  set(KEYS.tendenciasAplicadas, all.slice(0, 100));
+}
+
+// --- CONTENIDO MARÍA ---
+export function getContenidoMaria(): ContenidoMaria[] {
+  return get<ContenidoMaria>(KEYS.contenidoMaria);
+}
+
+export function saveContenidoMaria(item: ContenidoMaria): void {
+  const all = get<ContenidoMaria>(KEYS.contenidoMaria);
+  all.unshift(item);
+  set(KEYS.contenidoMaria, all.slice(0, 50));
+}
+
+export function deleteContenidoMaria(id: string): void {
+  set(KEYS.contenidoMaria, get<ContenidoMaria>(KEYS.contenidoMaria).filter(c => c.id !== id));
 }
 
 // --- UTILS ---

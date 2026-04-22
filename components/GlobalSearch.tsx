@@ -1,10 +1,11 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, X, Store, Sparkles, FileText, BarChart2, ShoppingBag, TrendingUp, Package, FileBarChart, Star } from 'lucide-react';
+import { Search, X, Store, Sparkles, FileText, BarChart2, ShoppingBag, TrendingUp, Package, FileBarChart, Star, Telescope } from 'lucide-react';
 import {
   getBrands, getContent, getStoreAnalyses,
   getProductCopys, getProposals, getReviewAnalyses,
+  getReferentes,
 } from '@/lib/storage';
 
 interface SearchResult {
@@ -102,6 +103,19 @@ function useGlobalSearch() {
           href: `/resenas`,
           icon: <Star size={14} className="text-warning" />,
           category: 'Análisis',
+        });
+      }
+    });
+
+    getReferentes().forEach(r => {
+      if (r.username.toLowerCase().includes(q) || r.category.toLowerCase().includes(q) || (r.notes?.toLowerCase().includes(q))) {
+        found.push({
+          id: `ref-${r.id}`,
+          title: `@${r.username}`,
+          subtitle: `Referente · ${r.category}`,
+          href: `/referentes`,
+          icon: <Telescope size={14} className="text-violet-400" />,
+          category: 'Referentes',
         });
       }
     });
@@ -228,6 +242,7 @@ export function GlobalSearch() {
                 { label: 'Nombres y Copys', href: '/nombres', icon: <Package size={13} /> },
                 { label: 'Propuestas', href: '/propuestas', icon: <FileText size={13} /> },
                 { label: 'Reseñas', href: '/resenas', icon: <Star size={13} /> },
+              { label: 'Referentes', href: '/referentes', icon: <Telescope size={13} /> },
               ].map(q => (
                 <button
                   key={q.href}
