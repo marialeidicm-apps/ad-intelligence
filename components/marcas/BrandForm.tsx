@@ -37,6 +37,7 @@ export function BrandForm({ initial, onSave, onCancel }: BrandFormProps) {
     objective: initial?.objective ?? 'ventas_tienda',
     voiceProfile: initial?.voiceProfile ?? DEFAULT_VOICE,
     instagramUsername: initial?.instagramUsername ?? '',
+    storeUrl: initial?.storeUrl ?? '',
     logoColor: initial?.logoColor ?? BRAND_COLORS[0],
   });
 
@@ -109,6 +110,14 @@ export function BrandForm({ initial, onSave, onCancel }: BrandFormProps) {
             options={ECOMMERCE_PLATFORMS}
             onChange={e => set('ecommercePlatform', e.target.value)}
           />
+          <div className="sm:col-span-2">
+            <Input
+              label="URL de la tienda"
+              placeholder="Ej: mitienda.mitiendanube.com o mitienda.myshopify.com"
+              value={form.storeUrl}
+              onChange={e => set('storeUrl', e.target.value)}
+            />
+          </div>
         </div>
       </section>
 
