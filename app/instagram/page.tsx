@@ -12,8 +12,31 @@ import { Spinner, EmptyState } from '@/components/ui/Spinner';
 import {
   BarChart2, Instagram, TrendingUp, AlertTriangle, Lightbulb,
   Target, Users, Sparkles, CheckCircle2, AlertCircle, Info,
-  ChevronRight, ArrowUp, Mic2, Save, CheckCheck
+  ChevronRight, ArrowUp, Mic2, Save, CheckCheck, ShoppingBag,
+  ClipboardList, Play, Star, Search
 } from 'lucide-react';
+
+interface AuditItem {
+  label: string;
+  status: 'bien' | 'mejorar';
+  note: string;
+}
+
+interface StrategicPlanItem {
+  action: string;
+  audit: AuditItem[];
+  productFocus?: string;
+  inspirationSearch: string;
+  script: string;
+  checklist: string[];
+  realBrandExamples: string[];
+}
+
+interface StoreProductInsights {
+  topProducts: string[];
+  contentOpportunities: string[];
+  crossSellStrategy: string;
+}
 
 interface AnalysisData {
   username: string;
@@ -27,13 +50,14 @@ interface AnalysisData {
   strengths: string[];
   weaknesses: string[];
   opportunities: string[];
-  strategicPlan: string[];
+  strategicPlan: (StrategicPlanItem | string)[];
+  storeProductInsights?: StoreProductInsights;
   contentIdeas: string[];
   followerGrowthTips: string[];
   explorePageStrategy: string[];
 }
 
-function MetricCard({ label, value, sub, color = 'violet' }: { label: string; value: string; sub?: string; color?: string }) {
+function MetricCard({ label, value, sub, color = 'violet' }: { label: string; value: string | number; sub?: string; color?: string }) {
   const colorMap: Record<string, string> = {
     violet: 'text-violet-light',
     success: 'text-success',
@@ -43,7 +67,7 @@ function MetricCard({ label, value, sub, color = 'violet' }: { label: string; va
   return (
     <div className="bg-surface border border-border rounded-xl p-4">
       <p className="text-xs text-ink-dim mb-1">{label}</p>
-      <p className={`text-xl font-bold ${colorMap[color] || colorMap.violet}`}>{value}</p>
+      <p className={`text-xl font-bold ${colorMap[color] || colorMap.violet}`}>{String(value)}</p>
       {sub && <p className="text-xs text-ink-dim mt-0.5">{sub}</p>}
     </div>
   );
@@ -79,6 +103,139 @@ function ListSection({ title, icon, items, variant = 'default' }: {
         ))}
       </ul>
     </div>
+  );
+}
+
+function StrategicPlanCard({ item, index }: { item: StrategicPlanItem | string; index: number }) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (typeof item === 'string') {
+    return (
+      <li className="flex items-start gap-3">
+        <span className="w-5 h-5 rounded-full bg-violet-dim border border-violet-600/30 flex items-center justify-center text-[10px] font-bold text-violet-light flex-shrink-0 mt-0.5">
+          {index + 1}
+        </span>
+        <p className="text-sm text-ink-muted leading-relaxed">{item}</p>
+      </li>
+    );
+  }
+
+  return (
+    <li className="border border-border rounded-xl overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-start gap-3 p-4 hover:bg-card/50 transition-colors text-left"
+      >
+        <span className="w-5 h-5 rounded-full bg-violet-dim border border-violet-600/30 flex items-center justify-center text-[10px] font-bold text-violet-light flex-shrink-0 mt-0.5">
+          {index + 1}
+        </span>
+        <p className="text-sm text-ink leading-relaxed flex-1">{item.action}</p>
+        <ChevronRight
+          size={14}
+          className={`text-ink-dim flex-shrink-0 mt-0.5 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
+        />
+      </button>
+
+      {expanded && (
+        <div className="border-t border-border p-4 space-y-5 bg-card/30">
+
+          {/* Auditoría del perfil */}
+          <div>
+            <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2.5">Auditoría de tu perfil</p>
+            <ul className="space-y-2">
+              {item.audit?.map((a, j) => (
+                <li key={j} className="flex items-start gap-2.5">
+                  <span className={`text-sm font-bold flex-shrink-0 mt-0.5 ${a.status === 'bien' ? 'text-success' : 'text-danger'}`}>
+                    {a.status === 'bien' ? '✓' : '✗'}
+                  </span>
+                  <div className="min-w-0">
+                    <span className={`text-xs font-semibold ${a.status === 'bien' ? 'text-success' : 'text-danger'}`}>
+                      {a.label}
+                    </span>
+                    {a.note && <p className="text-xs text-ink-dim mt-0.5 leading-relaxed">{a.note}</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Qué producto mostrar */}
+          {item.productFocus && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <ShoppingBag size={13} className="text-violet-400" />
+                <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide">Qué producto mostrar</p>
+              </div>
+              <p className="text-sm text-ink-muted bg-violet-dim/30 border border-violet-600/20 rounded-lg px-3 py-2.5 leading-relaxed">
+                {item.productFocus}
+              </p>
+            </div>
+          )}
+
+          {/* Inspiración */}
+          {item.inspirationSearch && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Search size={13} className="text-blue-400" />
+                <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide">Dónde buscar inspiración</p>
+              </div>
+              <p className="text-sm text-ink-muted bg-card border border-border rounded-lg px-3 py-2.5 leading-relaxed">
+                {item.inspirationSearch}
+              </p>
+            </div>
+          )}
+
+          {/* Guión */}
+          {item.script && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Play size={13} className="text-warning" />
+                <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide">Guión listo para usar</p>
+              </div>
+              <pre className="text-sm text-ink-muted bg-card border border-border rounded-lg px-4 py-3 leading-relaxed whitespace-pre-wrap font-sans">
+                {item.script}
+              </pre>
+            </div>
+          )}
+
+          {/* Checklist */}
+          {item.checklist?.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <ClipboardList size={13} className="text-success" />
+                <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide">Checklist paso a paso</p>
+              </div>
+              <ul className="space-y-1.5">
+                {item.checklist.map((step, k) => (
+                  <li key={k} className="flex items-start gap-2.5">
+                    <span className="w-4 h-4 rounded border border-border flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-ink-muted leading-relaxed">{step}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Marcas ejemplo */}
+          {item.realBrandExamples?.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Star size={13} className="text-warning" />
+                <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide">Marcas que ya lo hacen bien</p>
+              </div>
+              <ul className="space-y-1.5">
+                {item.realBrandExamples.map((ex, k) => (
+                  <li key={k} className="flex items-start gap-2">
+                    <span className="text-warning text-xs mt-0.5">→</span>
+                    <p className="text-sm text-ink-muted leading-relaxed">{ex}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </li>
   );
 }
 
@@ -136,6 +293,7 @@ function InstagramContent() {
         body: JSON.stringify({
           username: username.trim().replace('@', ''),
           brandContext: selectedBrand ? buildBrandContext(selectedBrand) : '',
+          storeUrl: selectedBrand?.storeUrl || '',
         }),
       });
 
@@ -145,7 +303,6 @@ function InstagramContent() {
       setAnalysis(data.result);
       setHasRealData(data.hasRealData);
 
-      // Save to history
       if (selectedBrand) {
         saveContent({
           id: generateId(),
@@ -158,7 +315,6 @@ function InstagramContent() {
         });
       }
 
-      // Auto voice analysis
       try {
         const voiceRes = await fetch('/api/voz-marca', {
           method: 'POST',
@@ -174,7 +330,7 @@ function InstagramContent() {
           if (voiceData.result) setVoiceAnalysis(voiceData.result);
         }
       } catch {
-        // Voice analysis is optional, don't fail
+        // Voice analysis is optional
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al analizar');
@@ -233,6 +389,12 @@ function InstagramContent() {
             />
           </div>
         </div>
+        {selectedBrand?.storeUrl && (
+          <div className="mt-3 flex items-center gap-2 text-xs text-ink-dim">
+            <ShoppingBag size={12} className="text-violet-400" />
+            <span>Tienda detectada: <span className="text-violet-400">{selectedBrand.storeUrl}</span> — se va a cruzar con el análisis</span>
+          </div>
+        )}
         <div className="mt-4 flex items-start gap-3">
           <Button
             onClick={analyze}
@@ -244,7 +406,7 @@ function InstagramContent() {
           </Button>
           <div className="flex items-start gap-2 text-xs text-ink-dim bg-surface border border-border rounded-lg px-3 py-2">
             <Info size={12} className="flex-shrink-0 mt-0.5" />
-            <span>Si no tenés Apify configurado, el análisis es generado por IA basado en el perfil de la marca</span>
+            <span>Sin Apify, el análisis es generado por IA basado en el perfil de la marca</span>
           </div>
         </div>
 
@@ -290,7 +452,11 @@ function InstagramContent() {
 
           {/* Métricas */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <MetricCard label="Posts analizados" value={String(analysis.postsAnalyzed)} color="violet" />
+            <MetricCard
+              label="Posts analizados"
+              value={analysis.postsAnalyzed > 0 ? analysis.postsAnalyzed : '—'}
+              color="violet"
+            />
             <MetricCard label="Engagement promedio" value={analysis.averageEngagement} color="success" />
             <MetricCard label="Frecuencia" value={analysis.postingFrequency} color="blue" />
             <MetricCard label="Tono detectado" value={analysis.tone} color="warning" />
@@ -349,20 +515,67 @@ function InstagramContent() {
             />
           </div>
 
-          {/* Plan estratégico */}
+          {/* Integración con tienda */}
+          {analysis.storeProductInsights && (
+            <div className="bg-surface border border-violet-600/20 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-7 h-7 rounded-lg bg-violet-dim flex items-center justify-center">
+                  <ShoppingBag size={14} className="text-violet-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-ink">Cruce tienda + Instagram</h3>
+                  <p className="text-xs text-ink-dim">Qué productos tienen más potencial para mostrar en redes</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2">Productos con más potencial</p>
+                  <ul className="space-y-2">
+                    {analysis.storeProductInsights.topProducts.map((p, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="text-violet-400 font-bold text-xs mt-0.5">{i + 1}.</span>
+                        <p className="text-sm text-ink-muted leading-relaxed">{p}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2">Oportunidades de contenido</p>
+                  <ul className="space-y-2">
+                    {analysis.storeProductInsights.contentOpportunities.map((o, i) => (
+                      <li key={i} className="flex items-start gap-2.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0 mt-1.5" />
+                        <p className="text-sm text-ink-muted leading-relaxed">{o}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {analysis.storeProductInsights.crossSellStrategy && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <p className="text-xs font-semibold text-ink-dim uppercase tracking-wide mb-2">Estrategia tienda → redes</p>
+                  <p className="text-sm text-ink-muted leading-relaxed bg-card border border-border rounded-lg px-3 py-2.5">
+                    {analysis.storeProductInsights.crossSellStrategy}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Plan estratégico expandido */}
           <div className="bg-surface border border-border rounded-xl p-5">
             <div className="flex items-center gap-2 mb-4">
               <Target size={18} className="text-violet-400" />
-              <h3 className="text-sm font-semibold text-ink">Plan de acción</h3>
+              <div>
+                <h3 className="text-sm font-semibold text-ink">Plan de acción</h3>
+                <p className="text-xs text-ink-dim">Tocá cada punto para ver el cómo hacerlo, guión y checklist</p>
+              </div>
             </div>
-            <ol className="space-y-3">
+            <ol className="space-y-2">
               {analysis.strategicPlan?.map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="w-5 h-5 rounded-full bg-violet-dim border border-violet-600/30 flex items-center justify-center text-[10px] font-bold text-violet-light flex-shrink-0 mt-0.5">
-                    {i + 1}
-                  </span>
-                  <p className="text-sm text-ink-muted leading-relaxed">{item}</p>
-                </li>
+                <StrategicPlanCard key={i} item={item} index={i} />
               ))}
             </ol>
           </div>
@@ -465,7 +678,7 @@ function InstagramContent() {
         <EmptyState
           icon={<Instagram size={48} strokeWidth={1} />}
           title="Ingresá un usuario para analizar"
-          description="El análisis incluye estrategia, engagement, plan de acción e ideas de contenido adaptadas a la voz de la marca."
+          description="El análisis incluye estrategia, engagement, plan de acción con guiones listos e ideas de contenido adaptadas a la voz de la marca."
         />
       )}
     </div>
