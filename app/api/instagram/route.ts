@@ -1,31 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
+import { parseClaudeJSON } from '@/lib/parseClaudeJSON';
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
-
-function parseClaudeJSON(raw: string): unknown {
-  const clean = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  try {
-    return JSON.parse(clean);
-  } catch {
-    // Escape actual newlines/tabs inside JSON string values (character-by-character)
-    let inString = false;
-    let escaped = false;
-    let result = '';
-    for (const ch of clean) {
-      if (escaped) { result += ch; escaped = false; }
-      else if (ch === '\\' && inString) { result += ch; escaped = true; }
-      else if (ch === '"') { result += ch; inString = !inString; }
-      else if (inString && ch === '\n') { result += '\\n'; }
-      else if (inString && ch === '\r') { /* skip */ }
-      else if (inString && ch === '\t') { result += '\\t'; }
-      else { result += ch; }
-    }
-    return JSON.parse(result);
-  }
-}
 
 async function analyzeWithApify(username: string): Promise<unknown | null> {
   const apifyToken = process.env.APIFY_TOKEN;

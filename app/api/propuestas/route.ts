@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
+import { parseClaudeJSON } from '@/lib/parseClaudeJSON';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -60,10 +61,7 @@ Generá una propuesta comercial profesional y persuasiva. Respondé SOLO con JSO
     });
 
     const rawContent = message.content[0].type === 'text' ? message.content[0].text : '';
-    const clean = rawContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const parsed = JSON.parse(clean);
-
-    return NextResponse.json({ result: parsed });
+    return NextResponse.json({ result: parseClaudeJSON(rawContent) });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Error desconocido';
     return NextResponse.json({ error: msg }, { status: 500 });

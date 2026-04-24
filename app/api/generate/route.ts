@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
+import { parseClaudeJSON } from '@/lib/parseClaudeJSON';
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -139,14 +140,10 @@ export async function POST(req: NextRequest) {
 
     const rawContent = message.content[0].type === 'text' ? message.content[0].text : '';
 
-    // Parse JSON response
     let parsed;
     try {
-      // Remove markdown code blocks if present
-      const clean = rawContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      parsed = JSON.parse(clean);
+      parsed = parseClaudeJSON(rawContent);
     } catch {
-      // If not valid JSON, return raw text
       parsed = { rawText: rawContent };
     }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { parseClaudeJSON } from '@/lib/parseClaudeJSON';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -69,10 +70,7 @@ Respondé en español rioplatense, tono profesional. Solo el JSON.`;
       messages: [{ role: 'user', content: prompt }],
     });
     const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
-    const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const match = clean.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('No JSON en respuesta de Claude');
-    return NextResponse.json(JSON.parse(match[0]));
+    return NextResponse.json(parseClaudeJSON(text));
   } catch (error) {
     console.error('reporte route error:', error);
     return NextResponse.json({ error: 'No se pudo generar el reporte' }, { status: 500 });
