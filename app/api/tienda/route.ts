@@ -90,7 +90,7 @@ Respondé en español rioplatense, sé específica y actionable. Solo el JSON, s
     const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
     return NextResponse.json(parseClaudeJSON(text));
   } catch (error) {
-    console.error('tienda route error:', error);
-    return NextResponse.json({ error: 'No se pudo generar el análisis' }, { status: 500 });
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err.message, stack: err.stack, detail: String(error) }, { status: 500 });
   }
 }

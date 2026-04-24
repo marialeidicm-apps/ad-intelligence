@@ -70,7 +70,7 @@ Respondé en español rioplatense, con tono profesional pero cercano. Solo el JS
     const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
     return NextResponse.json(parseClaudeJSON(text));
   } catch (error) {
-    console.error('reunion route error:', error);
-    return NextResponse.json({ error: 'No se pudo generar el briefing' }, { status: 500 });
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err.message, stack: err.stack, detail: String(error) }, { status: 500 });
   }
 }

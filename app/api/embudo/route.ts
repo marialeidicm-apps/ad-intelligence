@@ -81,7 +81,7 @@ Sé específica basándote en el tipo de marca e industria. Respondé en españo
     const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
     return NextResponse.json(parseClaudeJSON(text));
   } catch (error) {
-    console.error('embudo route error:', error);
-    return NextResponse.json({ error: 'No se pudo generar el análisis del embudo' }, { status: 500 });
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err.message, stack: err.stack, detail: String(error) }, { status: 500 });
   }
 }

@@ -77,7 +77,7 @@ Respondé en español rioplatense. Solo el JSON, sin texto extra.`;
     const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
     return NextResponse.json(parseClaudeJSON(text));
   } catch (error) {
-    console.error('comentarios route error:', error);
-    return NextResponse.json({ error: 'No se pudo analizar los comentarios' }, { status: 500 });
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err.message, stack: err.stack, detail: String(error) }, { status: 500 });
   }
 }

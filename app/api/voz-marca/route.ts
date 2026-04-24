@@ -64,7 +64,7 @@ Respondé SOLO con JSON válido (sin markdown):
     const rawContent = message.content[0].type === 'text' ? message.content[0].text : '';
     return NextResponse.json({ result: parseClaudeJSON(rawContent) });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Error desconocido';
-    return NextResponse.json({ error: msg }, { status: 500 });
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err.message, stack: err.stack, detail: String(error) }, { status: 500 });
   }
 }

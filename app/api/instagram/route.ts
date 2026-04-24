@@ -269,14 +269,13 @@ export async function POST(req: NextRequest) {
     try {
       parsed = parseClaudeJSON(rawContent);
     } catch (parseError) {
-      console.error('Instagram JSON parse error:', parseError, '\nRaw:', rawContent.slice(0, 500));
-      return NextResponse.json({ error: 'Error al procesar la respuesta de IA' }, { status: 500 });
+      const err = parseError instanceof Error ? parseError : new Error(String(parseError));
+      return NextResponse.json({ error: err.message, stack: err.stack, detail: String(parseError), rawResponse: rawContent.slice(0, 3000) }, { status: 500 });
     }
 
     return NextResponse.json({ result: parsed, hasRealData: !!apifyData });
   } catch (error: unknown) {
-    console.error('Instagram analysis error:', error);
-    const message = error instanceof Error ? error.message : 'Error desconocido';
-    return NextResponse.json({ error: `Error al analizar: ${message}` }, { status: 500 });
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err.message, stack: err.stack, detail: String(error) }, { status: 500 });
   }
 }

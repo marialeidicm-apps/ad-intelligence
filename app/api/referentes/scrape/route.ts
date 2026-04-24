@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
       scrapedAt: new Date().toISOString(),
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Error desconocido';
-    return NextResponse.json({ error: msg }, { status: 500 });
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err.message, stack: err.stack, detail: String(error) }, { status: 500 });
   }
 }

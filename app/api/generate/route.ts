@@ -149,8 +149,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ result: parsed, mode });
   } catch (error: unknown) {
-    console.error('Generate error:', error);
-    const message = error instanceof Error ? error.message : 'Error desconocido';
-    return NextResponse.json({ error: `Error al generar: ${message}` }, { status: 500 });
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err.message, stack: err.stack, detail: String(error) }, { status: 500 });
   }
 }
