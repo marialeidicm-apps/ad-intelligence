@@ -5,6 +5,28 @@ const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+function parseClaudeJSON(raw: string): unknown {
+  const clean = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  try {
+    return JSON.parse(clean);
+  } catch {
+    // Escape actual newlines/tabs inside JSON string values (character-by-character)
+    let inString = false;
+    let escaped = false;
+    let result = '';
+    for (const ch of clean) {
+      if (escaped) { result += ch; escaped = false; }
+      else if (ch === '\\' && inString) { result += ch; escaped = true; }
+      else if (ch === '"') { result += ch; inString = !inString; }
+      else if (inString && ch === '\n') { result += '\\n'; }
+      else if (inString && ch === '\r') { /* skip */ }
+      else if (inString && ch === '\t') { result += '\\t'; }
+      else { result += ch; }
+    }
+    return JSON.parse(result);
+  }
+}
+
 async function analyzeWithApify(username: string): Promise<unknown | null> {
   const apifyToken = process.env.APIFY_TOKEN;
   if (!apifyToken) return null;
@@ -256,11 +278,19 @@ export async function POST(req: NextRequest) {
 
     const rawContent = message.content[0].type === 'text' ? message.content[0].text : '';
 
+    console.log('=== CLAUDE RAW RESPONSE (instagram) ===');
+    console.log('stop_reason:', message.stop_reason);
+    console.log('usage:', JSON.stringify(message.usage));
+    console.log('content length:', rawContent.length);
+    console.log('--- FULL TEXT ---');
+    console.log(rawContent);
+    console.log('=== END CLAUDE RESPONSE ===');
+
     let parsed;
     try {
-      const clean = rawContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      parsed = JSON.parse(clean);
-    } catch {
+      parsed = parseClaudeJSON(rawContent);
+    } catch (parseError) {
+      console.error('Instagram JSON parse error:', parseError, '\nRaw:', rawContent.slice(0, 500));
       return NextResponse.json({ error: 'Error al procesar la respuesta de IA' }, { status: 500 });
     }
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
-const client = new Anthropic();
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
   const { brand, recentContent, memories } = await req.json();
@@ -66,11 +66,13 @@ Respondé en español rioplatense, con tono profesional pero cercano. Solo el JS
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     });
-    const text = (msg.content[0] as { type: string; text: string }).text;
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('No JSON');
+    const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
+    const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const match = clean.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON en respuesta de Claude');
     return NextResponse.json(JSON.parse(match[0]));
-  } catch {
+  } catch (error) {
+    console.error('reunion route error:', error);
     return NextResponse.json({ error: 'No se pudo generar el briefing' }, { status: 500 });
   }
 }
