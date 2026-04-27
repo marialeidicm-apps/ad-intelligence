@@ -2,6 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { parseClaudeJSON } from '@/lib/parseClaudeJSON';
 
+export const maxDuration = 60;
+
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });

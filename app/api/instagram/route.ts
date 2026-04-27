@@ -2,6 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { parseClaudeJSON } from '@/lib/parseClaudeJSON';
 
+export const maxDuration = 60;
+
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
@@ -28,8 +30,8 @@ async function analyzeWithApify(username: string): Promise<unknown | null> {
     const runId = run.data?.id;
     if (!runId) return null;
 
-    for (let i = 0; i < 6; i++) {
-      await new Promise(r => setTimeout(r, 5000));
+    for (let i = 0; i < 2; i++) {
+      await new Promise(r => setTimeout(r, 4000));
       const statusRes = await fetch(
         `https://api.apify.com/v2/actor-runs/${runId}?token=${apifyToken}`
       );
