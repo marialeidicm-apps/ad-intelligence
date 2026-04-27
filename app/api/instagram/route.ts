@@ -250,12 +250,12 @@ export async function POST(req: NextRequest) {
     }
 
     const apifyData = await analyzeWithApify(username);
-    const cleanStoreUrl = storeUrl?.trim() || undefined;
+    const cleanStoreUrl = (typeof storeUrl === 'string' && storeUrl.trim().length > 0) ? storeUrl.trim() : undefined;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 5000,
-      system: 'Respondé ÚNICAMENTE con JSON válido. Sin texto antes ni después. Sin explicaciones. Solo el objeto JSON.',
+      max_tokens: 8000,
+      system: 'Respondé ÚNICAMENTE con JSON válido. Sin texto antes ni después. Sin explicaciones. Solo el objeto JSON. El JSON completo no debe superar 6000 caracteres — sé conciso en los textos.',
       messages: [{
         role: 'user',
         content: buildAnalysisPrompt(username, brandContext || '', apifyData, cleanStoreUrl),

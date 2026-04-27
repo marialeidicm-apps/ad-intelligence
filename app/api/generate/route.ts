@@ -26,6 +26,9 @@ function getSeasonAR(): string {
 function buildSystemPrompt(brandContext: string, mode: string, language: string): string {
   const season = getSeasonAR();
   const seasonTips = SEASON_TIPS[season] ?? '';
+  const conciseness = mode === 'audit'
+    ? '\n- El JSON completo no debe superar 6000 caracteres — sé conciso en los textos de analysis y fixes.'
+    : '';
 
   return `Sos un experto en marketing de contenidos para redes sociales, especializado en el mercado latinoamericano, especialmente Argentina.
 
@@ -42,7 +45,7 @@ REGLAS GENERALES:
 - El contenido tiene que ser específico para la marca, no genérico
 - Sin frases corporativas vacías. Sin clichés de marketing
 - Cada output tiene que poder usarse AHORA, sin edición
-- Aplicá lo que Adam Mosseri dice sobre el algoritmo: el contenido que logra que la gente interactúe activamente gana distribución
+- Aplicá lo que Adam Mosseri dice sobre el algoritmo: el contenido que logra que la gente interactúe activamente gana distribución${conciseness}
 
 ${getModeInstructions(mode)}
 
@@ -135,9 +138,11 @@ export async function POST(req: NextRequest) {
 
     const userMessage = `Generá contenido para el siguiente tema/producto: "${topic || 'la marca en general'}"${extraContext ? `\n\nContexto adicional: ${extraContext}` : ''}`;
 
+    const maxTokens = mode === 'audit' ? 8000 : 2000;
+
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: maxTokens,
       system: buildSystemPrompt(brandContext, mode, language || 'español'),
       messages: [{ role: 'user', content: userMessage }],
     });
