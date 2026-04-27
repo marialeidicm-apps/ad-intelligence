@@ -62,6 +62,7 @@ Respondé SOLO con JSON válido (sin markdown):
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 2000,
+      system: 'Respondé ÚNICAMENTE con JSON válido. Sin texto antes ni después. Sin explicaciones. Solo el objeto JSON.',
       messages: [{ role: 'user', content: prompt }],
     });
 

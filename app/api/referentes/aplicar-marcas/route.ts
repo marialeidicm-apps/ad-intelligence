@@ -59,6 +59,7 @@ Generá entre 3 y 8 aplicaciones concretas. Priorizá las más impactantes.`;
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 3000,
+      system: 'Respondé ÚNICAMENTE con JSON válido. Sin texto antes ni después. Sin explicaciones. Solo el objeto JSON.',
       messages: [{ role: 'user', content: prompt }],
     });
 

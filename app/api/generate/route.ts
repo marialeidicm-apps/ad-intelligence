@@ -44,7 +44,9 @@ REGLAS GENERALES:
 - Cada output tiene que poder usarse AHORA, sin edición
 - Aplicá lo que Adam Mosseri dice sobre el algoritmo: el contenido que logra que la gente interactúe activamente gana distribución
 
-${getModeInstructions(mode)}`;
+${getModeInstructions(mode)}
+
+Respondé ÚNICAMENTE con JSON válido. Sin texto antes ni después. Sin explicaciones. Solo el objeto JSON.`;
 }
 
 function getModeInstructions(mode: string): string {

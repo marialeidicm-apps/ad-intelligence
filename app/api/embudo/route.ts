@@ -78,6 +78,7 @@ Sé específica basándote en el tipo de marca e industria. Respondé en españo
     const msg = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 2500,
+      system: 'Respondé ÚNICAMENTE con JSON válido. Sin texto antes ni después. Sin explicaciones. Solo el objeto JSON.',
       messages: [{ role: 'user', content: prompt }],
     });
     const text = msg.content[0].type === 'text' ? msg.content[0].text : '';

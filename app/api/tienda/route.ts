@@ -87,6 +87,7 @@ Respondé en español rioplatense, sé específica y actionable. Solo el JSON, s
     const msg = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 3500,
+      system: 'Respondé ÚNICAMENTE con JSON válido. Sin texto antes ni después. Sin explicaciones. Solo el objeto JSON.',
       messages: [{ role: 'user', content: prompt }],
     });
     const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
