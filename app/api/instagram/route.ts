@@ -85,6 +85,21 @@ Incluí recomendaciones específicas de producto en el plan de acción.`
     ? postCount
     : '<estimá un número entre 12 y 20 basado en el rubro, NUNCA pongas 0>';
 
+  const storeInsightsSection = storeUrl ? `
+  "storeProductInsights": {
+    "topProducts": [
+      "Producto/categoría 1 con mayor potencial para redes y por qué",
+      "Producto/categoría 2",
+      "Producto/categoría 3"
+    ],
+    "contentOpportunities": [
+      "Oportunidad de contenido específica cruzando tienda + redes 1",
+      "Oportunidad 2",
+      "Oportunidad 3"
+    ],
+    "crossSellStrategy": "Estrategia concreta de cómo usar el catálogo de la tienda para generar contenido que venda"
+  },` : '';
+
   return `Sos una experta en estrategia de Instagram y crecimiento orgánico para marcas de ecommerce en Latinoamérica. Hablás en español rioplatense, lenguaje simple para dueños de marca.
 
 PERFIL A ANALIZAR: @${username.replace('@', '')}
@@ -197,19 +212,7 @@ Generá un análisis estratégico completo. Respondé SOLO con JSON válido (sin
       "realBrandExamples": ["Marca ejemplo 1", "Marca ejemplo 2"]
     }
   ],
-  "storeProductInsights": {
-    "topProducts": [
-      "Producto/categoría 1 con mayor potencial para redes y por qué",
-      "Producto/categoría 2",
-      "Producto/categoría 3"
-    ],
-    "contentOpportunities": [
-      "Oportunidad de contenido específica cruzando tienda + redes 1",
-      "Oportunidad 2",
-      "Oportunidad 3"
-    ],
-    "crossSellStrategy": "Estrategia concreta de cómo usar el catálogo de la tienda para generar contenido que venda"
-  },
+  ${storeInsightsSection}
   "contentIdeas": [
     "Idea de contenido específica 1 con formato y tema",
     "Idea 2",
@@ -247,6 +250,7 @@ export async function POST(req: NextRequest) {
     }
 
     const apifyData = await analyzeWithApify(username);
+    const cleanStoreUrl = storeUrl?.trim() || undefined;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
@@ -254,7 +258,7 @@ export async function POST(req: NextRequest) {
       system: 'Respondé ÚNICAMENTE con JSON válido. Sin texto antes ni después. Sin explicaciones. Solo el objeto JSON.',
       messages: [{
         role: 'user',
-        content: buildAnalysisPrompt(username, brandContext || '', apifyData, storeUrl || ''),
+        content: buildAnalysisPrompt(username, brandContext || '', apifyData, cleanStoreUrl),
       }],
     });
 
